@@ -43,7 +43,7 @@ void *network_thread_f(void *);
 int main()
 {
   int err, col, row;
-  const char *key_value = "    abcdefghijklmnopqrstuvwxyz1234567890                                                                                                         ";
+  const char *key_value = "    abcdefghijklmnopqrstuvwxyz1234567890     -=[]\\#;'/,.`";
   struct sockaddr_in serv_addr;
 
   struct usb_keyboard_packet packet;
@@ -113,14 +113,16 @@ int main()
 	      packet.keycode[1]);
       printf("%s\n", keystate);
       fbputs(keystate, 15, 12);
+      // check the first key is pressed
       if (packet.keycode[0]!=0){
-	if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0]){
-	  temp_char = key_value[packet.keycode[0]];
-	  if (len+1 < 100){
-	    str[len] = temp_char;
-	    str[len+1] = '\0';
-	    len++;
-	  }
+        // check if the key is newly pressed
+        if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0]){
+          temp_char = key_value[packet.keycode[0]];
+          if (len+1 < 100){
+            str[len] = temp_char;
+            str[len+1] = '\0';
+            len++;
+          }
           if (location_col < 63) {
             location_col += 1;
           }   
@@ -128,45 +130,48 @@ int main()
             location_col = 12;
             location_row += 1;
           }
-	  fbputchar(temp_char, location_row, location_col);
-	  old_key1 = packet.keycode[0];
-	  old_key2 = packet.keycode[1];
-	}
-	else{
-	  if(packet.keycode[1] != 0){
-	    temp_char = key_value[packet.keycode[1]];
-	    if (len+1 < 100){
-	      str[len] = temp_char;
-	      str[len+1] = '\0';
-	      len ++;
-	    }
-	    if (location_col < 63) {
-	      location_col += 1;
-	    }
-	    else{
-	      location_col = 12;
-	      location_row += 1;
-	    }
-	  }
-	  fbputchar(temp_char, location_row, location_col);
-	  old_key1 = packet.keycode[0];
-	  old_key2 = packet.keycode[1];
-	}
+          fbputchar(temp_char, location_row, location_col);
+          old_key1 = packet.keycode[0];
+          old_key2 = packet.keycode[1];
+        }
+        // The first key is unchanged, check the second key
+        else{
+          if(packet.keycode[1] != 0){
+            temp_char = key_value[packet.keycode[1]];
+            if (len+1 < 100){
+              str[len] = temp_char;
+              str[len+1] = '\0';
+              len ++;
+            }
+            if (location_col < 63) {
+              location_col += 1;
+            }
+            else{
+              location_col = 12;
+              location_row += 1;
+            }
+          }
+          fbputchar(temp_char, location_row, location_col);
+          old_key1 = packet.keycode[0];
+          old_key2 = packet.keycode[1];
+        }
       }
+      // No key is pressed
       else{
-	old_key1 = 0;
-	old_key2 = 0;
+        old_key1 = 0;
+        old_key2 = 0;
       }
+      // ENTER is pressed
       if (packet.keycode[0] == 0x28){
-	write(sockfd, str, len+1);
-	len = 0;
-	location_row = 16;
-	location_col = 12;
-	for (row = location_row; row < 24; row++){
-	  for (col = location_col; col < 64; col++){
-	    fbputchar(' ', row,col);
-	  }
-	}
+        write(sockfd, str, len+1);
+        len = 0;
+        location_row = 16;
+        location_col = 12;
+        for (row = location_row; row < 24; row++){
+          for (col = location_col; col < 64; col++){
+            fbputchar(' ', row,col);
+          }
+        }
       }
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	break;
