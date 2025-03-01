@@ -43,7 +43,8 @@ void *network_thread_f(void *);
 int main()
 {
   int err, col, row;
-  const char *key_value = "    abcdefghijklmnopqrstuvwxyz1234567890     -=[]\\#;'/,.`";
+  const char *key_value       = "    abcdefghijklmnopqrstuvwxyz1234567890\n    -=[]\\#;'`,./";
+  const char *key_value_shift = "    ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()\n    _+{}|~:\"~<>?";
   struct sockaddr_in serv_addr;
 
   struct usb_keyboard_packet packet;
@@ -106,11 +107,11 @@ int main()
   /* Look for and handle keypresses */
   for (;;) {
     libusb_interrupt_transfer(keyboard, endpoint_address,
-			      (unsigned char *) &packet, sizeof(packet),
-			      &transferred, 0);
+                              (unsigned char *) &packet, sizeof(packet),
+                              &transferred, 0);
     if (transferred == sizeof(packet)) {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
-	      packet.keycode[1]);
+	            packet.keycode[1]);
       printf("%s\n", keystate);
       fbputs(keystate, 15, 12);
       // check the first key is pressed
@@ -163,7 +164,7 @@ int main()
       }
       // ENTER is pressed
       if (packet.keycode[0] == 0x28){
-        write(sockfd, str, len+1);
+        write(sockfd, str, len);
         len = 0;
         location_row = 16;
         location_col = 12;
@@ -174,7 +175,7 @@ int main()
         }
       }
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	break;
+	      break;
       }
     }
   }
@@ -195,7 +196,7 @@ void *network_thread_f(void *ignored)
   /* Receive data */
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
-    printf("%s", recvBuf);
+    printf("%s\n", recvBuf);
     fbputs(recvBuf, 4, 12);
   }
 
