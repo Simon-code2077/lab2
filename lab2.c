@@ -43,6 +43,7 @@ struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
 pthread_t network_thread;
+pthread_t blink_thread;
 void *network_thread_f(void *);
 void *blink_cursor(void *arg) {
   while (1) {
