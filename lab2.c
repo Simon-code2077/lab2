@@ -190,7 +190,7 @@ int main()
         location_col = 9;
         for (row = location_row; row < 24; row++){
           for (col = location_col; col < 64; col++){
-            fbputchar(' ', location_row, location_row);
+            fbputchar(' ', row, col);
           }
         }
       }
@@ -199,13 +199,14 @@ int main()
         if (len > 0){
           len --;
           str[len] = '\0';
-          fbputchar(' ', location_row, location_col);
           if (location_col > 10){
             location_col -= 1;
+            fbputchar(' ', location_row, location_col);
           }
           else if (location_row > 22){
             location_col = 63;
             location_row -= 1;
+            fbputchar(' ', location_row, location_col);
           }
         }
       }
