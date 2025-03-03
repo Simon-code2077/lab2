@@ -39,7 +39,21 @@ uint8_t endpoint_address;
 
 pthread_t network_thread;
 void *network_thread_f(void *);
+void *blink_cursor(void *arg) {
+  while (1) {
+    cursor_visible = !cursor_visible;
+    usleep(BLINK_INTERVAL);
+  }
+  return NULL;
+}
 
+void draw_cursor(char temp) {
+  if (cursor_visible) {
+    fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
+  } else {
+    fbputchar(temp, cursor_row, cursor_col);
+  }
+}
 int main()
 {
   int err, col, row;
@@ -50,7 +64,7 @@ int main()
   struct usb_keyboard_packet packet;
   int transferred;
   char keystate[12];
-
+  pthread_create(&blink_thread, NULL, blink_cursor, NULL);
   if ((err = fbopen()) != 0) {
     fprintf(stderr, "Error: Could not open framebuffer: %d\n", err);
     exit(1);
@@ -118,8 +132,8 @@ int main()
       // check the first key is pressed
       if (packet.keycode[0]!=0){
         // check if the key is newly pressed
-        if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0]){
-          temp_char = key_value[packet.keycode[0]];
+        if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] <= 0x39){
+          temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
           if (len+1 < 100){
             str[len] = temp_char;
             str[len+1] = '\0';
@@ -138,8 +152,8 @@ int main()
         }
         // The first key is unchanged, check the second key
         else{
-          if(packet.keycode[1] != 0){
-            temp_char = key_value[packet.keycode[1]];
+          if(packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x29 && packet.keycode[1] <= 0x39){
+            temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
             if (len+1 < 100){
               str[len] = temp_char;
               str[len+1] = '\0';
@@ -152,11 +166,11 @@ int main()
               location_col = 10;
               location_row += 1;
             }
+            fbputchar(temp_char, location_row, location_col);
+            old_key1 = packet.keycode[0];
+            old_key2 = packet.keycode[1];
           }
-          fbputchar(temp_char, location_row, location_col);
-          old_key1 = packet.keycode[0];
-          old_key2 = packet.keycode[1];
-        }
+        } //single modifier key pressed after the first key will has no response
       }
       // No key is pressed
       else{
@@ -175,6 +189,22 @@ int main()
           }
         }
       }
+      // BACKSPACE is pressed
+      if (packet.keycode[0] == 0x2a){
+        if (len > 0){
+          len --;
+          str[len] = '\0';
+          fbputchar(' ', location_row, location_col);
+          if (location_col > 10){
+            location_col -= 1;
+          }
+          else if (location_row > 22){
+            location_col = 63;
+            location_row -= 1;
+          }
+        }
+      }
+      // ESC is pressed
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	      break;
       }
