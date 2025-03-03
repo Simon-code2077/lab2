@@ -121,6 +121,10 @@ int main()
   int location_row = 22;
   // MAX 100 characters
   char temp_char;
+  char cursor_char;
+  int cursor_index = 0;
+  int cursor_col = 10;
+  int cursor_row = 22;
   int old_key1,old_key2;
   int len;
   char str[100] = "";
