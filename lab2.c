@@ -198,6 +198,7 @@ int main()
       if (packet.keycode[0] == 0x2a){
         if (len > 0){
           len --;
+          len --;
           str[len] = '\0';
           if (location_col > 10){
             location_col -= 1;
