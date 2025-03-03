@@ -190,7 +190,7 @@ int main()
         location_col = 9;
         for (row = location_row; row < 24; row++){
           for (col = location_col; col < 64; col++){
-            fbputchar(' ', row,col);
+            fbputchar(' ', location_row, location_row);
           }
         }
       }
