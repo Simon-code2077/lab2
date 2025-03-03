@@ -31,7 +31,12 @@
  * http://www.thegeekstuff.com/2011/12/c-socket-programming/
  * 
  */
-
+ #define CURSOR_CHAR '_'
+ #define BLINK_INTERVAL 500000 // 500 milliseconds
+ 
+ int cursor_row = 22;
+ int cursor_col = 10;
+ int cursor_visible = 1;
 int sockfd; /* Socket file descriptor */
 
 struct libusb_device_handle *keyboard;
@@ -238,16 +243,17 @@ void *network_thread_f(void *ignored)
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
     printf("%s\n", recvBuf);
+    char *recvPtr = recvBuf;
     while (n > 0) {
       if (n > 54) {
-        memcpy(displayLine, recvBuf, 54);
+        memcpy(displayLine, recvPtr, 54);
         displayLine[54] = '\0';
         memcpy(displayBuff, displayBuff + 54, 54*20);
         memcpy(displayBuff + 54*20, displayLine, 54);
         n -= 54;
-        recvBuf += 54;
+        recvPtr += 54;
       } else {
-        memcpy(displayLine, recvBuf, n);
+        memcpy(displayLine, recvPtr, n);
         displayLine[n] = '\0';
         memcpy(displayBuff, displayBuff + 54, 54*21 - 54);
         memcpy(displayBuff + 54*21 - 54, displayLine, n);
