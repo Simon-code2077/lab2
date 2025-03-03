@@ -63,10 +63,10 @@ int main()
     }
   }
   for (col = 0; col < 64 ; col ++){
-    fbputchar('*', 12, col);
+    fbputchar('*', 21, col);
   }
-  fbputs("SERVER:", 4, 0);
-  fbputs("KEYBOARD:", 15, 0);
+  fbputs("SERVER:", 20, 0);
+  fbputs("YOU:", 22, 0);
 
   /* Open the keyboard */
   if ( (keyboard = openkeyboard(&endpoint_address)) == NULL ) {
@@ -97,8 +97,9 @@ int main()
 
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
-  int location_col = 12;
-  int location_row = 16;
+  int location_col = 10;
+  int location_row = 22;
+  // MAX 100 characters
   char temp_char;
   int old_key1,old_key2;
   int len;
@@ -128,7 +129,7 @@ int main()
             location_col += 1;
           }   
           else{
-            location_col = 12;
+            location_col = 10;
             location_row += 1;
           }
           fbputchar(temp_char, location_row, location_col);
@@ -148,7 +149,7 @@ int main()
               location_col += 1;
             }
             else{
-              location_col = 12;
+              location_col = 10;
               location_row += 1;
             }
           }
@@ -166,8 +167,8 @@ int main()
       if (packet.keycode[0] == 0x28){
         write(sockfd, str, len);
         len = 0;
-        location_row = 16;
-        location_col = 12;
+        location_row = 22;
+        location_col = 10;
         for (row = location_row; row < 24; row++){
           for (col = location_col; col < 64; col++){
             fbputchar(' ', row,col);
@@ -192,12 +193,43 @@ int main()
 void *network_thread_f(void *ignored)
 {
   char recvBuf[BUFFER_SIZE];
+  char displayBuff[54*21+1];      // 10 bits to show "SERVER:" Total Max 21 Lines
+  char displayLine[55];      
+  int i;
+  for (i = 0; i < 54*21; i++) {
+    displayBuff[i] = ' ';
+  }
+  for (i = 0; i < 54; i++) {
+    displayLine[i] = ' ';
+  }
+
   int n;
   /* Receive data */
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
     printf("%s\n", recvBuf);
-    fbputs(recvBuf, 4, 12);
+    while (n > 0) {
+      if (n > 54) {
+        memcpy(displayLine, recvBuf, 54);
+        displayLine[54] = '\0';
+        memcpy(displayBuff, displayBuff + 54, 54*20);
+        memcpy(displayBuff + 54*20, displayLine, 54);
+        n -= 54;
+        recvBuf += 54;
+      } else {
+        memcpy(displayLine, recvBuf, n);
+        displayLine[n] = '\0';
+        memcpy(displayBuff, displayBuff + 54, 54*21 - 54);
+        memcpy(displayBuff + 54*21 - 54, displayLine, n);
+        n = 0;
+        break;
+      }
+    }
+    for (i = 0; i < 21; i++) {
+      memcpy(displayLine, displayBuff + 54*i, 54);
+      displayLine[54] = '\0';
+      fbputs(displayLine, i, 10);
+    }
   }
 
   return NULL;
