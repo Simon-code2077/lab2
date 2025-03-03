@@ -134,7 +134,6 @@ int main()
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	            packet.keycode[1]);
       printf("%s\n", keystate);
-      fbputs(keystate, 15, 12);
       // check the first key is pressed
       if (packet.keycode[0]!=0){
         // check if the key is newly pressed
@@ -255,7 +254,10 @@ void *network_thread_f(void *ignored)
         recvPtr += 54;
       } else {
         memcpy(displayLine, recvPtr, n);
-        displayLine[n] = '\0';
+        for (i = n; i < 54; i++) {
+          displayLine[i] = ' ';
+        }
+        displayLine[54] = '\0';
         memcpy(displayBuff, displayBuff + 54, 54*21 - 54);
         memcpy(displayBuff + 54*21 - 54, displayLine, n);
         n = 0;
