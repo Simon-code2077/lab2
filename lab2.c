@@ -117,7 +117,7 @@ int main()
 
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
-  int location_col = 10;
+  int location_col = 9;
   int location_row = 22;
   // MAX 100 characters
   char temp_char;
@@ -187,7 +187,7 @@ int main()
         write(sockfd, str, len);
         len = 0;
         location_row = 22;
-        location_col = 10;
+        location_col = 9;
         for (row = location_row; row < 24; row++){
           for (col = location_col; col < 64; col++){
             fbputchar(' ', row,col);
@@ -259,6 +259,10 @@ void *network_thread_f(void *ignored)
         }
         displayLine[54] = '\0';
         memcpy(displayBuff, displayBuff + 54, 54*21 - 54);
+        for (i = 54*20; i < 54*21; i++) {
+          displayBuff[i] = ' ';
+        }
+        displayBuff[54*21] = '\0';
         memcpy(displayBuff + 54*21 - 54, displayLine, n);
         n = 0;
         break;
