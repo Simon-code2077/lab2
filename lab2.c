@@ -208,6 +208,8 @@ int main()
             location_row -= 1;
             fbputchar(' ', location_row, location_col);
           }
+          printf("%d\n", len);
+          printf("%s\n", str);
         }
       }
       // ESC is pressed
