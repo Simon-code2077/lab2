@@ -241,7 +241,7 @@ void *network_thread_f(void *ignored)
   int n;
   /* Receive data */
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
-    recvBuf[n] = '\0';
+    // recvBuf[n] = '\0';
     printf("%s\n", recvBuf);
     char *recvPtr = recvBuf;
     while (n > 0) {
