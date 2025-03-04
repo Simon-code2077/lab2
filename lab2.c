@@ -250,22 +250,24 @@ void *network_thread_f(void *ignored)
     // recvBuf[n] = '\0';
     printf("%s\n", recvBuf);
     char *recvPtr = recvBuf;
+    int count = 1;
     while (n > 0) {
       if (n > 54) {
         memcpy(displayLine, recvPtr, 54);
         displayLine[54] = '\0';
-        memcpy(displayBuff, displayBuff + 54, 54*20);
-        memcpy(displayBuff + 54*20, displayLine, 54);
+        memcpy(displayBuff, displayBuff + 54, 54*(21 - count));
+        memcpy(displayBuff + 54*(21-count), displayLine, 54);
         n -= 54;
         recvPtr += 54;
+	count = count + 1;
       } else {
         memcpy(displayLine, recvPtr, n);
         for (i = n; i < 54; i++) {
           displayLine[i] = ' ';
         }
         displayLine[54] = '\0';
-        memcpy(displayBuff, displayBuff + 54, 54*21 - 54);
-        for (i = 54*20; i < 54*21; i++) {
+        memcpy(displayBuff, displayBuff + 54, 54*(21 - count));
+        for (i = 54*(21-count); i < 54*(21-count+1); i++) {
           displayBuff[i] = ' ';
         }
         displayBuff[54*21] = '\0';
@@ -275,7 +277,7 @@ void *network_thread_f(void *ignored)
       }
     }
     for (i = 0; i < 21; i++) {
-      memcpy(displayLine, displayBuff + 54*i, 54);
+      memcpy(displayLine, displayBuff + 54*(20-i), 54);
       displayLine[54] = '\0';
       fbputs(displayLine, i, 10);
     }
