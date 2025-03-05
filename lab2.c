@@ -246,7 +246,7 @@ int main()
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          draw_cursor();
+          //draw_cursor();
         }
       }
 
@@ -255,7 +255,7 @@ int main()
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          draw_cursor();
+          //draw_cursor();
         }
       }
 
