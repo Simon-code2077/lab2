@@ -1,3 +1,9 @@
+/*
+ *
+ * CSEE 4840 Lab 2 for 2019
+ *
+ * Name/UNI: Please Changeto Yourname (pcy2301)
+ */
 #include "fbputchar.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,23 +14,37 @@
 #include "usbkeyboard.h"
 #include <pthread.h>
 
+/* Update SERVER_HOST to be the IP address of
+ * the chat server you are connecting to
+ */
+/* arthur.cs.columbia.edu */
 #define SERVER_HOST "128.59.19.114"
 #define SERVER_PORT 42000
+
 #define BUFFER_SIZE 128
-#define CURSOR_CHAR '_'
-#define BLINK_INTERVAL 500000 // 500 milliseconds
 
-int cursor_row = 22;
-int cursor_col = 10;
-int cursor_visible = 1;
-int sockfd; /* Socket file descriptor */
+/*
+ * References:
+ *
+ * https://web.archive.org/web/20130307100215/http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html
+ *
+ * http://www.thegeekstuff.com/2011/12/c-socket-programming/
+ * 
+ */
+ #define CURSOR_CHAR '_'
+ #define BLINK_INTERVAL 500000 // 500 milliseconds
+ 
+ int cursor_row = 22;
+ int cursor_col = 10;
+ int cursor_visible = 1;
+ int cursor_index = 0;    // 光标位置
 
-struct libusb_device_handle *keyboard;
-uint8_t endpoint_address;
+ int sockfd; /* Socket file descriptor */
 
-char input_buffer[100];  // 输入缓冲区
-int input_len = 0;       // 输入缓冲区长度
-int cursor_index = 0;    // 光标位置
+ struct libusb_device_handle *keyboard;
+ uint8_t endpoint_address;
+
+
 
 pthread_t network_thread;
 pthread_t blink_thread;
@@ -38,15 +58,12 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor() {
+
+void draw_cursor(char temp) {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
   } else {
-    if (cursor_index < input_len) {
-      fbputchar(input_buffer[cursor_index], cursor_row, cursor_col);
-    } else {
-      fbputchar(' ', cursor_row, cursor_col);
-    }
+    fbputchar(temp, cursor_row, cursor_col);
   }
 }
 
@@ -59,7 +76,9 @@ void update_cursor_position() {
   }
 }
 
-int main() {
+
+int main()
+{
   int err, col, row;
   const char *key_value       = "    abcdefghijklmnopqrstuvwxyz1234567890\n    -=[]\\#;'`,./";
   const char *key_value_shift = "    ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()\n    _+{}|~:\"~<>?";
@@ -115,14 +134,21 @@ int main() {
 
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
-
-  int old_key1, old_key2;
+  int location_col = 9;
+  int location_row = 22;
+  // MAX 100 characters
+  char temp_char;
+  char cursor_char;
+  int cursor_index = 0;
+  int cursor_col = 10;
+  int cursor_row = 22;
+  int old_key1,old_key2;
   int len;
   char str[100] = "";
   len = 0;
-
   /* Look for and handle keypresses */
   for (;;) {
+    
     libusb_interrupt_transfer(keyboard, endpoint_address,
                               (unsigned char *) &packet, sizeof(packet),
                               &transferred, 0);
@@ -130,8 +156,92 @@ int main() {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	            packet.keycode[1]);
       printf("%s\n", keystate);
+      // check the first key is pressed
+      if (packet.keycode[0]!=0){
+        fbputchar('_', location_row, location_col+2);// ***************cursor
+        // check if the key is newly pressed
+        if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] != 0x2a && packet.keycode[0] <= 0x39){
+          temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
+          if (len+1 < 100){
+            memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
+            str[len] = temp_char;
+            str[len+1] = '\0';
+            cursor_index++;
+            len ++;
+          }
+          if (location_col < 63) {
+            location_col += 1;
+          }
+          else{
+            location_col = 10;
+            location_row += 1;
+          }
+          fbputchar(temp_char, location_row, location_col);
+          draw_cursor();
+          old_key1 = packet.keycode[0];
+          old_key2 = packet.keycode[1];
+        }
+        // The first key is unchanged, check the second key
+        else{
+          if(packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x29 && packet.keycode[1] <= 0x39){
+            temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
+            if (len+1 < 100){
+              memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
+              str[len] = temp_char;
+              str[len+1] = '\0';
+              cursor_index++;
+              len ++;
+            }
+            if (location_col < 63) {
+              location_col += 1;
+            }
+            else{
+              location_col = 10;
+              location_row += 1;
+            }
+            fbputchar(temp_char, location_row, location_col);
+            draw_cursor();
+            old_key1 = packet.keycode[0];
+            old_key2 = packet.keycode[1];
+            
+          }
+        } //single modifier key pressed after the first key will has no response
+      }
+      // No key is pressed
+      else{
+        old_key1 = 0;
+        old_key2 = 0;
+      }
+      // ENTER is pressed
+      if (packet.keycode[0] == 0x28){
+        write(sockfd, str, len);
+        len = 0;
+        location_row = 22;
+        location_col = 9;
+        for (row = location_row; row < 24; row++){
+          for (col = location_col; col < 64; col++){
+            fbputchar(' ', row, col);
+          }
+        }
+      }
+      // BACKSPACE is pressed
+      if (packet.keycode[0] == 0x2a){
+        if (len > 0){
+          len --;
+          str[len] = '\0';
+          fbputchar(' ', location_row, location_col);
+          if (location_col > 10){
+            location_col -= 1;
+          }
+          else if (location_row > 22){
+            location_col = 63;
+            location_row -= 1;
+          }
+          printf("%d\n", len);
+          printf("%s\n", str);
+        }
+      }
 
-      // Handle left arrow key
       if (packet.keycode[0] == 0x50) {
         if (cursor_index > 0) {
           cursor_index--;
@@ -149,59 +259,14 @@ int main() {
         }
       }
 
-      // Handle backspace key
-      if (packet.keycode[0] == 0x2A) {
-        if (cursor_index > 0) {
-          memmove(&input_buffer[cursor_index - 1], &input_buffer[cursor_index], input_len - cursor_index);
-          input_len--;
-          cursor_index--;
-          update_cursor_position();
-          for (int i = cursor_index; i < input_len; i++) {
-            fbputchar(input_buffer[i], cursor_row, cursor_col + i - cursor_index);
-          }
-          fbputchar(' ', cursor_row, cursor_col + input_len - cursor_index);
-          draw_cursor();
-        }
-      }
-
-      // Handle enter key
-      if (packet.keycode[0] == 0x28) {
-        write(sockfd, input_buffer, input_len);
-        input_len = 0;
-        cursor_index = 0;
-        update_cursor_position();
-        for (row = 22; row < 24; row++) {
-          for (col = 10; col < 64; col++) {
-            fbputchar(' ', row, col);
-          }
-        }
-        draw_cursor();
-      }
-
-      // Handle regular keypress
-      if (packet.keycode[0] != 0 && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x2A && packet.keycode[0] <= 0x39) {
-        char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
-        if (input_len < 99) {
-          memmove(&input_buffer[cursor_index + 1], &input_buffer[cursor_index], input_len - cursor_index);
-          input_buffer[cursor_index] = temp_char;
-          input_len++;
-          cursor_index++;
-          update_cursor_position();
-          for (int i = cursor_index - 1; i < input_len; i++) {
-            fbputchar(input_buffer[i], cursor_row, cursor_col + i - (cursor_index - 1));
-          }
-          draw_cursor();
-        }
-      }
-
-      // Handle ESC key
-      if (packet.keycode[0] == 0x29) {
-        break;
+      // ESC is pressed
+      if (packet.keycode[0] == 0x29) { /* ESC pressed? */
+	      break;
       }
     }
   }
 
-  /* Terminate the network thread */
+  /* Teirminate the network thread */
   pthread_cancel(network_thread);
 
   /* Wait for the network thread to finish */
@@ -210,7 +275,8 @@ int main() {
   return 0;
 }
 
-void *network_thread_f(void *ignored) {
+void *network_thread_f(void *ignored)
+{
   char recvBuf[BUFFER_SIZE];
   char displayBuff[54*21+1];      // 10 bits to show "SERVER:" Total Max 21 Lines
   char displayLine[55];      
@@ -263,3 +329,4 @@ void *network_thread_f(void *ignored) {
 
   return NULL;
 }
+
