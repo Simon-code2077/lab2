@@ -42,6 +42,8 @@ void draw_cursor() {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
   } 
+  else
+  fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
 
 }
 void update_cursor_position() {
