@@ -44,6 +44,8 @@ uint8_t endpoint_address;
 
 char input_buffer[100];  // 输入缓冲区
 int input_len = 0;       // 输入缓冲区长度
+int cursor_index = 0;    // 光标位置
+
 
 pthread_t network_thread;
 pthread_t blink_thread;
@@ -221,15 +223,16 @@ int main()
           printf("%s\n", str);
         }
       }
+      /*
       if (packet.keycode[0] == 0x50) {  // Left Arrow
         if (cursor_index > 0) {
-            if (cursor_visible) {  /* 恢复旧位置字符 */
+            if (cursor_visible) { 
                 char ch = (cursor_index < input_len) ? 
                           input_buffer[cursor_index] : ' ';
                 fbputchar(ch, cursor_row, cursor_col);
             }
             cursor_index--;        // 光标左移
-            /* 计算新光标坐标 */
+            
             cursor_row = 22; cursor_col = 10;
             for (int j = 0; j < cursor_index; ++j) {
                 if (cursor_col == 63) { cursor_col = 10; cursor_row++; }
@@ -247,12 +250,11 @@ int main()
                 fbputchar(ch, cursor_row, cursor_col);
             }
             cursor_index++;        // 光标右移
-            /* 同上重新计算 cursor_row, cursor_col … */
             cursor_visible = 1;
-            fbputchar(CURSOR_CHAR, cursor_row, cursor_col);s
+            fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
         }
     }
-    
+    */
       // ESC is pressed
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	      break;
