@@ -142,6 +142,10 @@ int main() {
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
           }
+          draw_cursor();
+          if(cursor_index>1){
+          fbputchar(str[len-cursor_index - 1], cursor_row, cursor_col + len - cursor_index -1 );
+          }
           old_key1 = packet.keycode[0];
           old_key2 = packet.keycode[1];
         }
@@ -161,7 +165,9 @@ int main() {
             fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
             }
           draw_cursor();
-          fbputchar(str[len-cursor_index + 1], cursor_row, cursor_col + len - cursor_index+1 );
+          if(cursor_index>1){
+            fbputchar(str[len-cursor_index - 1], cursor_row, cursor_col + len - cursor_index - 1 );
+            }
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
          }
@@ -214,12 +220,12 @@ int main() {
         len = 0;
         cursor_index = 0;
         update_cursor_position();
+        draw_cursor();
         for (row = 22; row < 24; row++) {
           for (col = 10; col < 64; col++) {
             fbputchar(' ', row, col);
           }
         }
-      draw_cursor();
       }
 
 
