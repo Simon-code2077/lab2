@@ -22,8 +22,8 @@ int sockfd; /* Socket file descriptor */
 struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
-char input_buffer[100];  // 输入缓冲区
-int input_len = 0;       // 输入缓冲区长度
+char str[100];  // 输入缓冲区
+int len = 0;       // 输入缓冲区长度
 int cursor_index = 0;    // 光标位置
 
 pthread_t network_thread;
@@ -42,8 +42,8 @@ void draw_cursor() {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
   } else {
-    if (cursor_index < input_len) {
-      fbputchar(input_buffer[cursor_index], cursor_row, cursor_col);
+    if (cursor_index < len) {
+      fbputchar(str[cursor_index], cursor_row, cursor_col);
     } else {
       fbputchar(' ', cursor_row, cursor_col);
     }
@@ -130,7 +130,48 @@ int main() {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	            packet.keycode[1]);
       printf("%s\n", keystate);
+       // check the first key is pressed     
+      if (packet.keycode[0]!=0){
+        // check if the key is newly pressed
+        if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] != 0x2a && packet.keycode[0] <= 0x39){
+          char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
+          if (len < 99) {
+            memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
+            str[cursor_index] = temp_char;
+            len++;
+            cursor_index++;
+            update_cursor_position();
+            for (int i = cursor_index - 1; i < len; i++) {
+              fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+            }
+            draw_cursor();
+            old_key1 = packet.keycode[0];
+            old_key2 = packet.keycode[1];
+          }
+          old_key1 = packet.keycode[0];
+          old_key2 = packet.keycode[1];
+        }
 
+
+    else{
+      // Handle regular keypress
+      if (packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x2A && packet.keycode[1] <= 0x39) {
+        char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
+        if (len < 99) {
+          memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
+          str[cursor_index] = temp_char;
+          len++;
+          cursor_index++;
+          update_cursor_position();
+          for (int i = cursor_index - 1; i < len; i++) {
+            fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+          }
+          draw_cursor();
+          old_key1 = packet.keycode[0];
+          old_key2 = packet.keycode[1];
+        }
+      }
+    }
       // Handle left arrow key
       if (packet.keycode[0] == 0x50) {
         if (cursor_index > 0) {
@@ -142,7 +183,7 @@ int main() {
 
       // Handle right arrow key
       if (packet.keycode[0] == 0x4F) {
-        if (cursor_index < input_len) {
+        if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
           draw_cursor();
@@ -152,22 +193,22 @@ int main() {
       // Handle backspace key
       if (packet.keycode[0] == 0x2A) {
         if (cursor_index > 0) {
-          memmove(&input_buffer[cursor_index - 1], &input_buffer[cursor_index], input_len - cursor_index);
-          input_len--;
+          memmove(&str[cursor_index - 1], &str[cursor_index], len - cursor_index);
+          len--;
           cursor_index--;
           update_cursor_position();
-          for (int i = cursor_index; i < input_len; i++) {
-            fbputchar(input_buffer[i], cursor_row, cursor_col + i - cursor_index);
+          for (int i = cursor_index; i < len; i++) {
+            fbputchar(str[i], cursor_row, cursor_col + i - cursor_index);
           }
-          fbputchar(' ', cursor_row, cursor_col + input_len - cursor_index);
+          fbputchar(' ', cursor_row, cursor_col + len - cursor_index);
           draw_cursor();
         }
       }
 
       // Handle enter key
       if (packet.keycode[0] == 0x28) {
-        write(sockfd, input_buffer, input_len);
-        input_len = 0;
+        write(sockfd, str, len);
+        len = 0;
         cursor_index = 0;
         update_cursor_position();
         for (row = 22; row < 24; row++) {
@@ -178,21 +219,7 @@ int main() {
         draw_cursor();
       }
 
-      // Handle regular keypress
-      if (packet.keycode[0] != 0 && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x2A && packet.keycode[0] <= 0x39) {
-        char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
-        if (input_len < 99) {
-          memmove(&input_buffer[cursor_index + 1], &input_buffer[cursor_index], input_len - cursor_index);
-          input_buffer[cursor_index] = temp_char;
-          input_len++;
-          cursor_index++;
-          update_cursor_position();
-          for (int i = cursor_index - 1; i < input_len; i++) {
-            fbputchar(input_buffer[i], cursor_row, cursor_col + i - (cursor_index - 1));
-          }
-          draw_cursor();
-        }
-      }
+
 
       // Handle ESC key
       if (packet.keycode[0] == 0x29) {
