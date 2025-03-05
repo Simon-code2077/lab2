@@ -43,8 +43,8 @@ void *blink_cursor(void *arg) {
 }
 
 void draw_cursor(char *str, int len) {
-  int draw_row=10;
-  int draw_col=22;
+  int draw_row=22;
+  int draw_col=10;
   for (int i = 0; i <= len; i++) 
   {
 
