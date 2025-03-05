@@ -64,6 +64,15 @@ void draw_cursor(char *str, int len) {
     if (draw_col >= 64) {
       draw_col = 10;
       draw_row++;
+      if (draw_row >= 24) {
+        draw_row = 22;
+        for (int j =10; j < 64; j++) {
+          fbputchar(' ', 22, j);
+        }
+        for (int j =10; j < 64; j++) {
+          fbputchar(' ', 23, j);
+        }
+      }
     }
   }
 
@@ -150,7 +159,7 @@ int main() {
         // check if the key is newly pressed
         if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] != 0x2a && packet.keycode[0] <= 0x39){
           char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
-          if (len < 99) {
+          if (len < 200) {
             memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
             str[cursor_index] = temp_char;
             len++;
@@ -172,7 +181,7 @@ int main() {
       // Handle regular keypress
         if (packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x2A && packet.keycode[1] <= 0x39) {
           char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
-          if (len < 99) {
+          if (len < 200) {
             memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
             str[cursor_index] = temp_char;
             len++;
