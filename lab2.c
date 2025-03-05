@@ -47,11 +47,14 @@ pthread_t blink_thread;
 void *network_thread_f(void *);
 void *blink_cursor(void *arg) {
   while (1) {
-    cursor_visible = !cursor_visible;
-    usleep(BLINK_INTERVAL);
+      cursor_visible = !cursor_visible;         // 翻转光标可见状态
+      char underChar = (cursor_index < input_len) ? 
+                        input_buffer[cursor_index] : ' ';
+      draw_cursor(underChar);                   // 重新绘制光标（显示或隐藏）
+      usleep(BLINK_INTERVAL);
   }
-  return NULL;
 }
+
 
 void draw_cursor(char temp) {
   if (cursor_visible) {
@@ -215,6 +218,38 @@ int main()
           printf("%s\n", str);
         }
       }
+      if (packet.keycode[0] == 0x50) {  // Left Arrow
+        if (cursor_index > 0) {
+            if (cursor_visible) {  /* 恢复旧位置字符 */
+                char ch = (cursor_index < input_len) ? 
+                          input_buffer[cursor_index] : ' ';
+                fbputchar(ch, cursor_row, cursor_col);
+            }
+            cursor_index--;        // 光标左移
+            /* 计算新光标坐标 */
+            cursor_row = 22; cursor_col = 10;
+            for (int j = 0; j < cursor_index; ++j) {
+                if (cursor_col == 63) { cursor_col = 10; cursor_row++; }
+                else { cursor_col++; }
+            }
+            cursor_visible = 1;    // 移动后使光标可见
+            fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
+        }
+    }
+    if (packet.keycode[0] == 0x4F) {  // Right Arrow
+        if (cursor_index < input_len) {
+            if (cursor_visible) {
+                char ch = (cursor_index < input_len) ? 
+                          input_buffer[cursor_index] : ' ';
+                fbputchar(ch, cursor_row, cursor_col);
+            }
+            cursor_index++;        // 光标右移
+            /* 同上重新计算 cursor_row, cursor_col … */
+            cursor_visible = 1;
+            fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
+        }
+    }
+    
       // ESC is pressed
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	      break;
