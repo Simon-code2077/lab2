@@ -188,7 +188,6 @@ int main() {
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          draw_cursor(str,len);
 
         }
       }
@@ -197,6 +196,7 @@ int main() {
       if (packet.keycode[0] == 0x4F) {
         if (cursor_index < len) {
           cursor_index++;
+          update_cursor_position();
 
         }
       }
@@ -231,7 +231,7 @@ int main() {
       }
 
       
-      draw_cursor(str,len);
+          draw_cursor(str,len);
 
       // Handle ESC key
       if (packet.keycode[0] == 0x29) {
