@@ -38,13 +38,11 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor(cursor_visible) {
+voiddraw_cursor() {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
   } 
-  else {
-    fbputchar(' ', cursor_row, cursor_col);
-  }
+
 }
 void update_cursor_position() {
   cursor_col = 10 + cursor_index;
@@ -140,7 +138,7 @@ int main() {
             for (int i = cursor_index - 1; i < len; i++) {
               fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
             }
-            draw_cursor(cursor_visible);
+            fbputchar(str[len-cursor_index + 1], cursor_row, cursor_col + len - cursor_index+1 );
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
           }
@@ -162,7 +160,8 @@ int main() {
             for (int i = cursor_index - 1; i < len; i++) {
             fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
             }
-            draw_cursor(cursor_visible);
+          draw_cursor();
+          fbputchar(str[len-cursor_index + 1], cursor_row, cursor_col + len - cursor_index+1 );
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
          }
@@ -179,7 +178,8 @@ int main() {
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          draw_cursor(cursor_visible);
+          fbputchar(str[len-cursor_index + 1], cursor_row, cursor_col + len - cursor_index + 1);
+        draw_cursor();
         }
       }
 
@@ -188,7 +188,8 @@ int main() {
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          draw_cursor(cursor_visible);
+        draw_cursor();
+        fbputchar(str[len-cursor_index -1 ], cursor_row, cursor_col + len - cursor_index + 1);
         }
       }
 
@@ -203,7 +204,7 @@ int main() {
             fbputchar(str[i], cursor_row, cursor_col + i - cursor_index);
           }
           fbputchar(' ', cursor_row, cursor_col + len - cursor_index);
-          draw_cursor(cursor_visible);
+        draw_cursor();
         }
       }
 
@@ -218,7 +219,7 @@ int main() {
             fbputchar(' ', row, col);
           }
         }
-        draw_cursor(cursor_visible);
+      draw_cursor();
       }
 
 
