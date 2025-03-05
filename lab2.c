@@ -25,6 +25,10 @@ uint8_t endpoint_address;
 //char str[100];  // 输入缓冲区
 //int len = 0;       // 输入缓冲区长度
 int cursor_index = 0;    // 光标位置
+int old_key1, old_key2;
+int len;
+char str[100] = "";
+len = 0;
 
 pthread_t network_thread;
 pthread_t blink_thread;
@@ -119,10 +123,7 @@ int main() {
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
 
-  int old_key1, old_key2;
-  int len;
-  char str[100] = "";
-  len = 0;
+
 
   /* Look for and handle keypresses */
   for (;;) {
