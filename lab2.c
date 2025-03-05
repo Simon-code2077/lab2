@@ -233,9 +233,12 @@ int main() {
           }
         }
       }
-
-      
-          draw_cursor(str,len);
+      for (row = 22; row < 24; row++) {
+        for (col = 10; col < 64; col++) {
+          fbputchar(' ', row, col);
+        }
+      }
+      draw_cursor(str,len);
 
       // Handle ESC key
       if (packet.keycode[0] == 0x29) {
