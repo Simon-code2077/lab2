@@ -45,6 +45,10 @@ void *blink_cursor(void *arg) {
 void draw_cursor(char *str, int len) {
   int draw_row=22;
   int draw_col=10;
+  while (cursor_index >= 54) {
+    cursor_index -= 54;
+    len -= 54;
+  }
   for (int i = 0; i <= len; i++) 
   {
 
@@ -65,13 +69,7 @@ void draw_cursor(char *str, int len) {
       draw_col = 10;
       draw_row++;
       if (draw_row >= 24) {
-        draw_row = 22;
-        for (int j =10; j < 64; j++) {
-          fbputchar(' ', 22, j);
-        }
-        for (int j =10; j < 64; j++) {
-          fbputchar(' ', 23, j);
-        }
+        break;
       }
     }
   }
