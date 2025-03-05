@@ -177,7 +177,7 @@ int main()
             location_row += 1;
           }
           fbputchar(temp_char, location_row, location_col);
-          draw_cursor();
+          draw_cursor(temp_char);
           old_key1 = packet.keycode[0];
           old_key2 = packet.keycode[1];
         }
@@ -200,7 +200,7 @@ int main()
               location_row += 1;
             }
             fbputchar(temp_char, location_row, location_col);
-            draw_cursor();
+            draw_cursor(temp_char);
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
             
@@ -246,7 +246,7 @@ int main()
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          //draw_cursor();
+          draw_cursor(temp_char);
         }
       }
 
@@ -255,7 +255,7 @@ int main()
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          //draw_cursor();
+          draw_cursor(temp_char);
         }
       }
 
