@@ -42,9 +42,9 @@ int sockfd; /* Socket file descriptor */
 struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
-char input_buffer[100];  // 输入缓冲区
-int input_len = 0;       // 输入缓冲区长度
-int cursor_index = 0;    // 光标位置
+//char input_buffer[100];  // 输入缓冲区
+//int input_len = 0;       // 输入缓冲区长度
+//int cursor_index = 0;    // 光标位置
 
 
 pthread_t network_thread;
@@ -146,6 +146,7 @@ int main()
       printf("%s\n", keystate);
       // check the first key is pressed
       if (packet.keycode[0]!=0){
+        fbputchar('_', location_row, location_col);// cursor
         // check if the key is newly pressed
         if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] != 0x2a && packet.keycode[0] <= 0x39){
           temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
