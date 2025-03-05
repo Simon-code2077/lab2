@@ -153,25 +153,31 @@ int main() {
         }
 
 
-    else{
+      else{
       // Handle regular keypress
-      if (packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x2A && packet.keycode[1] <= 0x39) {
-        char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
-        if (len < 99) {
-          memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
-          str[cursor_index] = temp_char;
-          len++;
-          cursor_index++;
-          update_cursor_position();
-          for (int i = cursor_index - 1; i < len; i++) {
+        if (packet.keycode[1] != 0 && packet.keycode[1] != 0x28 && packet.keycode[1] != 0x2A && packet.keycode[1] <= 0x39) {
+          char temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
+          if (len < 99) {
+            memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
+            str[cursor_index] = temp_char;
+            len++;
+            cursor_index++;
+            update_cursor_position();
+            for (int i = cursor_index - 1; i < len; i++) {
             fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
-          }
-          draw_cursor();
-          old_key1 = packet.keycode[0];
-          old_key2 = packet.keycode[1];
-        }
-      }
-    }
+            }
+            draw_cursor();
+            old_key1 = packet.keycode[0];
+            old_key2 = packet.keycode[1];
+         }
+       }
+     }
+   }
+   else{
+    old_key1 = 0;
+    old_key2 = 0;
+  }
+
       // Handle left arrow key
       if (packet.keycode[0] == 0x50) {
         if (cursor_index > 0) {
