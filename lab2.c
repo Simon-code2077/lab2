@@ -27,7 +27,7 @@ uint8_t endpoint_address;
 int cursor_index = 0;    // 光标位置
 int old_key1, old_key2;
 int len;
-char str[100] = "";
+char str[200] = "";
 len = 0;
 
 pthread_t network_thread;
