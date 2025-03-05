@@ -22,11 +22,8 @@ int sockfd; /* Socket file descriptor */
 struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
-
-int old_key1, old_key2;
-int len;
-char str[100] = "";
-len = 0;
+//char str[100];  // 输入缓冲区
+//int len = 0;       // 输入缓冲区长度
 int cursor_index = 0;    // 光标位置
 
 pthread_t network_thread;
@@ -41,7 +38,7 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor() {
+void draw_cursor(len) {
 
   for (int i = 0; i < len; i++) 
   {
@@ -122,6 +119,10 @@ int main() {
   /* Start the network thread */
   pthread_create(&network_thread, NULL, network_thread_f, NULL);
 
+  int old_key1, old_key2;
+  int len;
+  char str[100] = "";
+  len = 0;
 
   /* Look for and handle keypresses */
   for (;;) {
@@ -186,7 +187,7 @@ int main() {
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          draw_cursor()
+          draw_cursor(len);
 
         }
       }
@@ -196,7 +197,7 @@ int main() {
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          draw_cursor()
+          draw_cursor(len);
 
         }
       }
