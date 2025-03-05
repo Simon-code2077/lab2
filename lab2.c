@@ -42,7 +42,7 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor(str,len) {
+void draw_cursor(char *str, int len) {
 
   for (int i = 0; i < len; i++) 
   {
