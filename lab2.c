@@ -42,6 +42,9 @@ int sockfd; /* Socket file descriptor */
 struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
+char input_buffer[100];  // 输入缓冲区
+int input_len = 0;       // 输入缓冲区长度
+
 pthread_t network_thread;
 pthread_t blink_thread;
 void *network_thread_f(void *);
