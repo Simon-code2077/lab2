@@ -38,18 +38,14 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor() {
+void draw_cursor(cursor_visible) {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
-  } else {
-    if (cursor_index < len) {
-      fbputchar(str[cursor_index], cursor_row, cursor_col);
-    } else {
-      fbputchar(' ', cursor_row, cursor_col);
-    }
+  } 
+  else {
+    fbputchar(' ', cursor_row, cursor_col);
   }
 }
-
 void update_cursor_position() {
   cursor_col = 10 + cursor_index;
   cursor_row = 22;
