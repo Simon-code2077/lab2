@@ -252,7 +252,7 @@ int main()
 
       // Handle right arrow key
       if (packet.keycode[0] == 0x4F) {
-        if (cursor_index < input_len) {
+        if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
           draw_cursor();
