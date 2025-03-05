@@ -52,12 +52,10 @@ pthread_t blink_thread;
 void *network_thread_f(void *);
 void *blink_cursor(void *arg) {
   while (1) {
-      cursor_visible = !cursor_visible;         // 翻转光标可见状态
-      char underChar = (cursor_index < input_len) ? 
-                        input_buffer[cursor_index] : ' ';
-      draw_cursor(underChar);                   // 重新绘制光标（显示或隐藏）
-      usleep(BLINK_INTERVAL);
+    cursor_visible = !cursor_visible;
+    usleep(BLINK_INTERVAL);
   }
+  return NULL;
 }
 
 
