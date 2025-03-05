@@ -32,21 +32,16 @@ void *network_thread_f(void *);
 
 void *blink_cursor(void *arg) {
   while (1) {
-      cursor_visible = !cursor_visible;         // 翻转光标可见状态
-      char underChar = (cursor_index < input_len) ? 
-                        input_buffer[cursor_index] : ' ';
-      draw_cursor(underChar);                   // 重新绘制光标（显示或隐藏）
-      usleep(BLINK_INTERVAL);
+    cursor_visible = !cursor_visible;
+    usleep(BLINK_INTERVAL);
   }
+  return NULL;
 }
-
 
 void draw_cursor() {
   if (cursor_visible) {
     fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
   } 
-  else
-  fbputchar(CURSOR_CHAR, cursor_row, cursor_col);
 
 }
 void update_cursor_position() {
@@ -204,8 +199,8 @@ int main() {
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          //draw_cursor();
-          //fbputchar(str[len-cursor_index -1 ], cursor_row, cursor_col + len - cursor_index + 1);
+        //draw_cursor();
+        //fbputchar(str[len-cursor_index -1 ], cursor_row, cursor_col + len - cursor_index + 1);
         }
       }
 
@@ -219,7 +214,7 @@ int main() {
           for (int i = cursor_index; i < len; i++) {
             fbputchar(str[i], cursor_row, cursor_col + i - cursor_index);
           }
-          fbputchar(' ', cursor_row, cursor_col + len - cursor_index);
+          //fbputchar(' ', cursor_row, cursor_col + len - cursor_index);
         //draw_cursor();
         }
       }
@@ -237,26 +232,12 @@ int main() {
           }
         }
       }
-      // BACKSPACE is pressed
-      if (packet.keycode[0] == 0x2a){
-        if (len > 0){
-          len --;
-          str[len] = '\0';
-          fbputchar(' ', location_row, location_col);
-          if (location_col > 10){
-            location_col -= 1;
-          }
-          else if (location_row > 22){
-            location_col = 63;
-            location_row -= 1;
-          }
-          printf("%d\n", len);
-          printf("%s\n", str);
-        }
-      }
-      // ESC is pressed
-      if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	      break;
+
+
+
+      // Handle ESC key
+      if (packet.keycode[0] == 0x29) {
+        break;
       }
     }
   }
