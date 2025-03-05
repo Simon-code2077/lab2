@@ -45,11 +45,11 @@ void *blink_cursor(void *arg) {
 void draw_cursor(char *str, int len) {
   int draw_row=22;
   int draw_col=10;
-  while (cursor_index >= 54*2) {
-    cursor_index -= 54;
-    len -= 54;
+  int offset = 0;
+  while (cursor_index-offset >= 54*2) {
+    offset += 54;
   }
-  for (int i = 0; i <= len; i++) 
+  for (int i = offset; i <= len; i++) 
   {
 
     if(i == cursor_index)
