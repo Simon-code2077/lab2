@@ -145,9 +145,9 @@ int main() {
             len++;
             cursor_index++;
             update_cursor_position();
-            for (int i = cursor_index - 1; i < len; i++) {      
-                fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
-            }
+            // for (int i = cursor_index - 1; i < len; i++) {      
+            //     fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+            // }
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
           }
@@ -167,9 +167,9 @@ int main() {
             len++;
             cursor_index++;
             update_cursor_position();
-            for (int i = cursor_index - 1; i < len; i++) {
-                fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));       
-            }
+            // for (int i = cursor_index - 1; i < len; i++) {
+            //     fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));       
+            // }
   
           //draw_cursor();
             old_key1 = packet.keycode[0];
