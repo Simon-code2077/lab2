@@ -164,8 +164,8 @@ int main()
           temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
           if (len+1 < 100){
             memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
-            str[len] = temp_char;
-            str[len+1] = '\0';
+            //str[len] = temp_char;
+            //str[len+1] = '\0';
             cursor_index++;
             len ++;
           }
@@ -187,8 +187,8 @@ int main()
             temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[1]] : key_value[packet.keycode[1]];
             if (len+1 < 100){
               memmove(&str[cursor_index + 1], &str[cursor_index], len - cursor_index);
-              str[len] = temp_char;
-              str[len+1] = '\0';
+              //str[len] = temp_char;
+              //str[len+1] = '\0';
               cursor_index++;
               len ++;
             }
@@ -216,6 +216,7 @@ int main()
       if (packet.keycode[0] == 0x28){
         write(sockfd, str, len);
         len = 0;
+        cursor_index = 0;
         location_row = 22;
         location_col = 9;
         for (row = location_row; row < 24; row++){
@@ -228,7 +229,8 @@ int main()
       if (packet.keycode[0] == 0x2a){
         if (len > 0){
           len --;
-          str[len] = '\0';
+          cursor_index --;
+          str[cursor_index-1] = '\0';
           fbputchar(' ', location_row, location_col);
           if (location_col > 10){
             location_col -= 1;
