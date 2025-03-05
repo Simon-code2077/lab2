@@ -50,6 +50,7 @@ uint8_t endpoint_address;
 pthread_t network_thread;
 pthread_t blink_thread;
 void *network_thread_f(void *);
+
 void *blink_cursor(void *arg) {
   while (1) {
     cursor_visible = !cursor_visible;
@@ -146,7 +147,7 @@ int main()
       printf("%s\n", keystate);
       // check the first key is pressed
       if (packet.keycode[0]!=0){
-        fbputchar('_', location_row, location_col);// cursor
+        fbputchar('_', location_row, location_col+2);// cursor
         // check if the key is newly pressed
         if(old_key1 != packet.keycode[0] && old_key2 != packet.keycode[0] && packet.keycode[0] != 0x28 && packet.keycode[0] != 0x29 && packet.keycode[0] != 0x2a && packet.keycode[0] <= 0x39){
           temp_char = (packet.modifiers == 0x02 || packet.modifiers == 0x20) ? key_value_shift[packet.keycode[0]] : key_value[packet.keycode[0]];
