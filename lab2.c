@@ -136,6 +136,7 @@ int main() {
             cursor_index++;
             update_cursor_position();
             for (int i = cursor_index - 1; i < len; i++) {
+                fbputchar(' ', cursor_row, cursor_col + i - (cursor_index - 1));            
                 fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
                 fbputchar('_', cursor_row, cursor_col + i - (cursor_index - 2));  
             }
@@ -159,6 +160,7 @@ int main() {
             cursor_index++;
             update_cursor_position();
             for (int i = cursor_index - 1; i < len; i++) {
+                fbputchar(' ', cursor_row, cursor_col + i - (cursor_index - 1));
                 fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));   
                 fbputchar('_', cursor_row, cursor_col + i - (cursor_index-2));        
             }
@@ -180,13 +182,7 @@ int main() {
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          for (int i = cursor_index - 1; i < len; i++) {
-            fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));   
-            fbputchar('_', cursor_row, cursor_col + i - (cursor_index-2));        
-        }
-          //fbputchar(str[len-cursor_index + 1], cursor_row, cursor_col + len - cursor_index + 1);
-          
-          //draw_cursor();
+
         }
       }
 
@@ -195,12 +191,7 @@ int main() {
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-        //draw_cursor();
-        //fbputchar(str[len-cursor_index -1 ], cursor_row, cursor_col + len - cursor_index + 1);
-        for (int i = cursor_index - 1; i < len; i++) {
-          fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));   
-          fbputchar('_', cursor_row, cursor_col + i - (cursor_index-2));        
-      }
+
         }
       }
 
