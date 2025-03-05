@@ -22,8 +22,8 @@ int sockfd; /* Socket file descriptor */
 struct libusb_device_handle *keyboard;
 uint8_t endpoint_address;
 
-char str[100];  // 输入缓冲区
-int len = 0;       // 输入缓冲区长度
+//char str[100];  // 输入缓冲区
+//int len = 0;       // 输入缓冲区长度
 int cursor_index = 0;    // 光标位置
 
 pthread_t network_thread;
@@ -136,16 +136,18 @@ int main() {
             cursor_index++;
             update_cursor_position();
             for (int i = cursor_index - 1; i < len; i++) {
-              fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+              if(i = cursor_index - 1){
+                fbputchar('_', cursor_row, cursor_col + i - (cursor_index - 1));
+              }
+              else{
+                fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+              }
+        
             }
-;
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
           }
-          draw_cursor();
-          if(cursor_index>1){
-          fbputchar(str[cursor_col-1], cursor_row, cursor_col-1 );
-          }
+          //draw_cursor();
           old_key1 = packet.keycode[0];
           old_key2 = packet.keycode[1];
         }
@@ -162,12 +164,15 @@ int main() {
             cursor_index++;
             update_cursor_position();
             for (int i = cursor_index - 1; i < len; i++) {
-            fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+              if(i = cursor_index - 1){
+                fbputchar('_', cursor_row, cursor_col + i - (cursor_index - 1));
+              }
+              else{
+                fbputchar(str[i], cursor_row, cursor_col + i - (cursor_index - 1));
+              }
+        
             }
-          draw_cursor();
-          if(cursor_index>1){
-            fbputchar(str[cursor_col-1], cursor_row, cursor_col-1 );
-            }
+          //draw_cursor();
             old_key1 = packet.keycode[0];
             old_key2 = packet.keycode[1];
          }
