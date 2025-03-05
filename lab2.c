@@ -38,7 +38,7 @@ void *blink_cursor(void *arg) {
   return NULL;
 }
 
-void draw_cursor(len) {
+void draw_cursor(str,len) {
 
   for (int i = 0; i < len; i++) 
   {
@@ -187,7 +187,7 @@ int main() {
         if (cursor_index > 0) {
           cursor_index--;
           update_cursor_position();
-          draw_cursor(len);
+          draw_cursor(str,len);
 
         }
       }
@@ -197,7 +197,7 @@ int main() {
         if (cursor_index < len) {
           cursor_index++;
           update_cursor_position();
-          draw_cursor(len);
+          draw_cursor(str,len);
 
         }
       }
