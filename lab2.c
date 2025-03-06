@@ -10,7 +10,7 @@
 
 #define SERVER_HOST "128.59.19.114"
 #define SERVER_PORT 42000
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 200
 #define CURSOR_CHAR '_'
 #define BLINK_INTERVAL 500000 // 500 milliseconds
 
