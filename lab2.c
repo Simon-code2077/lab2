@@ -309,7 +309,7 @@ void *network_thread_f(void *ignored) {
           displayBuff[i] = ' ';
         }
         displayBuff[54*21] = '\0';
-        memcpy(displayBuff + 54*21 - 54, displayLine, n);
+        memcpy(displayBuff + 54*(21 - count), displayLine, n);
         n = 0;
         break;
       }
